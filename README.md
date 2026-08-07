@@ -6,7 +6,7 @@ I am an engineering and applied mathematics student aspiring to become an AI res
 
 * 🌍 &nbsp;Based in **Paris, France**.
 * ✉️ &nbsp;Contact me at [mohamed.khales@telecom-paris.fr](mailto:mohamed.khales@telecom-paris.fr)
-* 👥 &nbsp;Open to collaboration on **Computer Vision, Deep Learning Theory, and Reinforcement Learning** research projects.
+* 👥 &nbsp;Open to collaboration on **Computer Vision, Deep Learning Theory, and Signal Processing** research projects.
 
 ---
 
@@ -20,6 +20,10 @@ I am an engineering and applied mathematics student aspiring to become an AI res
 - **M2 MVA (Mathématiques, Vision, Apprentissage) @ ENS Paris-Saclay**: Currently pursuing this highly selective research master's program specializing in Applied Mathematics, Computer Vision, and Machine Learning.
 - **Télécom Paris (IP Paris)**: Completing my M.Sc. in Computer Science & Engineering, ranked in the Top 5% of my engineering class (4.0 GPA).
 - **Lycée Al Zahrawi**: Built a rigorous theoretical foundation through a two-year intensive curriculum in advanced Mathematics and Physics (Classes Préparatoires). 
+
+You can explore some of the projects and lab work I completed at Télécom Paris here:
+- [Signal Processing & AI Track](https://github.com/Mohamedyk10/Mohamedyk10/tree/main/Signal%20Processing%20%26%20AI%20-%20Télécom%20Paris) : covering advanced signal analysis and machine learning applications.
+- [Image Track](https://github.com/Mohamedyk10/Mohamedyk10/tree/main/Image%20-%20Télécom%20Paris) : focused on computer vision, image processing, deep learning techniques and 3D Vision.
 
 ---
 
