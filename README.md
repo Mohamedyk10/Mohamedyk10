@@ -66,7 +66,13 @@ I am an engineering and applied mathematics student aspiring to become an AI res
 ---
 
 ### 🌱 Beyond Code 
-Outside of my studies, I am actively involved with the **Math & Maroc** association, contributing to nationwide initiatives that promote excellence in mathematics and science among Moroccan youth.
+Beyond my academic journey, I actively contribute to the **Math&Maroc** association, supporting nationwide initiatives that foster excellence in mathematics and science among Moroccan youth. I am also part of **AMGE-Caravane**, a pioneering organization that connects, supports, and empowers future Moroccan leaders worldwide, fostering excellence beyond borders.
+
+At Télécom Paris, I enriched my student experience through diverse clubs and organizations:
+- **TéléGames :** the video game creation club, where creativity meets technology.
+- **Télécom Gaming Club (TGC) :** a gaming club that organizes mini‑tournaments and organizes IPP Tournament, the largest gaming competition on the Saclay campus, featuring a €3000 cash prize.
+- **International Board :** contributing to the Communication and Design poles, enhancing cross‑cultural collaboration.
+- **La Lettre Hebdomadaire :** the internal newsletter of Télécom Paris, where I helped shape engaging content for the student community.
 
 ### 📫 Connect with me
 
