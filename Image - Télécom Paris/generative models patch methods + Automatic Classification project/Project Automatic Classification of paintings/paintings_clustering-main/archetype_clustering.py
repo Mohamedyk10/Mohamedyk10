@@ -1,0 +1,218 @@
+import numpy as np
+from torch import nn
+from torchvision import models
+from torchvision.models.feature_extraction import create_feature_extractor
+from archetypes import AA
+from preprocessing import *
+from glob import glob
+import gc
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+from archetype_visualisation import *
+from sklearn.cluster import k_means
+from sklearn.manifold import TSNE 
+from sklearn.metrics import silhouette_score, pairwise_distances
+import scipy.cluster.hierarchy as hcluster
+
+# Deep Learning Part -------------------------
+class Clustering_end:
+    def __init__(self, input, K):
+        super().__init__()
+        self.fc = nn.Linear(input, K, bias=False)
+    
+    def forward(self, x):
+        return nn.functional.softmax(self.fc(x))
+
+class Network:
+    def __init__(self, model, mid_dim, K):
+        self.main_nn = model
+        self.end = Clustering_end(mid_dim, K) 
+    def forward(self, x):
+        torch.no_grad()
+        y = nn.functional.normalize(self.main_nn(x))
+        z = self.end(y)
+        return z
+# -----------------------------------------------
+
+class DeepClusterer:
+    """This class implements the Clustering With unkown number of clusters method proposed in the paper :\\
+    **Deep Plug-and-Play Clustering with Unknown Number of Clusters** by *An Xiao et al.*"""
+    def __init__(self, model, optim, data, dist=np.linalg.norm, epochs=100):
+        self.x = data
+        self.N = len(self.x)
+        self.model = model
+        self.optimizer = optim
+        self.dist = dist
+        self.labels = np.array([np.arange(self.N)]) # Initialization Everything in the same cluster
+        self.lambd = 0.5
+        self.K = len(self.labels)
+        self.probs = np.array([[1/self.K for i in range(self.K)] for j in range(self.N)]).T
+        self.n_eps = epochs
+    
+    def D(self, k1, k2):
+        for i in range(len(self.labels[k1])):
+            for j in range(len(self.labels[k1])):
+                ind_i = self.labels[k1][i]
+                ind_j = self.labels[k2][j]
+                SP += self.dist(self.x[ind_i], self.x[ind_j])
+
+    def compactness(self):
+        return np.sum([self.D(k, k) for k in range(self.K)])
+    def separation(self):
+        return np.sum([[self.D(k1, k2) for k1 in range(self.K) if k1!=k2]for k2 in range(self.K)])
+    def loss(self):
+        return self.compactness(self.K)-(self.lambd/self.K) * self.separation(self.K)
+    
+    def JS_div(self, p, q):
+        """
+        Calculates the JS divergence where p and q are probabilities of shape (N,)
+        """
+        def D_KL(P, Q):
+            eps = 1e-14
+            if len(P)!=len(Q):
+                raise TabError("P and Q have not the same lenght.")
+            return np.sum([P[i]*np.log((P(i)+eps)/(Q(i)+eps)) for i in range(len(P))])
+        M = (p+q)/2
+        return (D_KL(p, M)+D_KL(q, M))/2
+    
+    def JS_div_clusters(self, k1, k2):
+        """Calculates the JS divergence between two clusters ``k1`` and ``k2``"""
+        p = self.probs[:, k1]
+        q = self.probs[:, k2]
+        if p.sum()!=0:
+            p = p / p.sum() 
+        if q.sum()!=0:
+            q = q / q.sum()
+        return self.JS_div(p, q)
+
+    def get_split_threshold(self):
+        return self.lambd / (2*self.K * (self.lambd + self.K + 1)) * np.sum([[self.JS_div(k1,k2) for k1 in range(self.K) if k1!=k2]for k2 in range(self.K)])
+    
+    def get_merge_threshold(self, merged_probs):
+        final_sum = 0
+        for k1 in range(self.K-2):
+            p = self.probs[:, k1]
+            if p.sum()!=0:
+                p = p / p.sum() 
+            final_sum += self.JS_div(p, merged_probs)
+        return (self.lambd)/(2*(self.K-1)*(self.lambd+self.K))*final_sum
+
+    def cluster_split(self, k, k1, k2, trying = True):
+        """Splitting the clusters.
+        - ``k`` : the index of the cluster we should split.
+        - ``k1`` and ``k2`` : elements of the two splitted subclusters.
+        """
+        # Modification of the parameters
+        if not trying:
+            labs = self.labels
+            labs[k]=k1
+            labs.insert(k+1, k2)
+            self.labels = labs
+            self.K += 1   
+        # Modification of the model
+        model = self.model.copy()
+        old_weights=model.fc.weight.data
+        K, dim = old_weights.shape
+        new_weights = torch.zeros(K + 1, dim, device=old_weights.device)
+        new_weights[:k] = old_weights[:k]
+        new_weights[k] = k1
+        new_weights[k+1] = k2
+        new_weights[k+2:] = old_weights[k+1:]
+        model.head.fc = nn.Linear(dim, K + 1, bias=False)
+        model.head.fc.weight.data.copy_(new_weights)
+        if not trying:
+            self.model = model
+        return model
+    
+    def cluster_merge(self, k1,k2, trying=True):
+        # Modification of the parameters
+        if not trying:
+            i = min(k1, k2)
+            j = max(k1, k2)
+            labs = self.labels
+            labs[i]= np.concatenate(labs[i], labs[j])
+            labs.pop(j)
+            self.labels = labs
+            self.K -= 1
+        # Modification of the model
+        model = self.model.copy()
+        old_weights=model.fc.weight.data
+        K, dim = old_weights.shape
+        merged_w = 0.5 * (old_weights[k1] + old_weights[k2])
+        keep = [i for i in range(K) if i != k2]
+        new_weight = old_weights[keep].clone()
+        new_weight[k1] = merged_w 
+        model.head.fc = nn.Linear(self.feat_dim, K - 1, bias=False)
+        model.head.fc.weight.data.copy_(new_weight)
+        if not trying:
+            self.model = model
+        return model
+
+    
+    def train_model(self, epochs=None):
+        if epochs is None:
+            epochs = self.n_eps
+        self.model.train()
+        dict = {i: [] for i in range(self.K)}
+        for epoch in range(epochs):
+            self.optimizer.zero_grad()
+            for i in range(self.N):
+                p = self.model(self.x[i])
+                cluster = np.argmax(p)
+                dict[cluster].append(i)
+            loss = self.loss()
+            loss.backward()
+            self.optimizer.step()
+        
+    def train_with_split(self, epochs=None):
+        if epochs is None:
+            epochs = self.n_eps
+        
+
+    def train_with_merge(self, epochs=None):
+        if epochs is None:
+            epochs = self.n_eps
+        
+
+    def clusterize(self):
+        for epoch in range(self.n_eps):
+            # Apply A to training the network N with current number of cluster K*
+            self.train_model()
+            split = False
+            merge = False
+
+            for k in range(self.K):
+                # Using A, split cluster into two.
+                cluster_k = self.labels[k]
+                k1, k2 = cluster_k[:len(cluster_k)//2], cluster_k[len(cluster_k)//2:]# à changer 
+                J_div = self.JS_div(k1, k2)
+                Ts = self.get_split_threshold()
+                if J_div > Ts:
+                    self.cluster_split(k, k1, k2)
+                    split = True
+            # Apply A to training the network N with current number of cluster K* and equ 7
+            if split:
+                # train with split
+                self.train_with_split()
+            all_divs = np.array([[self.JS_div(k1, k2) for k1 in range(self.K)]for k2 in range(self.K)])
+            mask = ~np.eye(self.K, dtype=bool) 
+            cand_k2, cand_k1 = np.unravel_index(np.argmin(all_divs[mask]), (self.K, self.K))
+            J_div = self.JS_div(cand_k1, cand_k2)
+            merged_probs = (self.probs[k1]+self.probs[k2])/2
+            Tm = self.get_merge_threshold(merged_probs)
+            if J_div < Tm:
+                self.cluster_merge(cand_k1, cand_k2)
+                merge = True
+            # Apply A to training network N with K*.
+            if merge:
+                # train with merge
+                self.train_with_merge()
+        return
+    
+
+clusterer=DeepClusterer(None,x)
+centroids, clusters=clusterer.k_means(3)
+print(centroids)
+print(clusterer)
+            
+            
