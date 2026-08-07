@@ -25,18 +25,37 @@ I am an engineering and applied mathematics student aspiring to become an AI res
 
 ### 🚀 Highlighted Projects & Research
 
-<!-- REMPLACE "Mohamedyk10" PAR TON NOM D'UTILISATEUR ET "nom-du-repo" PAR LE VRAI NOM DU REPOSITORY -->
-<p align="center">
-  <a href="https://github.com/LucasRenaudineau/paintings_clustering">
-    <img src="https://cdn-icons-png.flaticon.com/512/4832/4832104.png" alt="Automatic Classification of Paintings" style="width:50px; height:auto;"/>
-  </a>
-  <a href="https://github.com/Mohamedyk10/IMA205-challenge">
-    <img src="https://cdn-icons-png.flaticon.com/512/7354/7354379.png" alt="White Blood Celle Classification - Kaggle Challenge" style="width:50px; height:auto;"/>
-  </a>
-  <a href="https://github.com/Mohamedyk10/inpainting">
-    <img src="https://cdn-icons-png.flaticon.com/512/1158/1158132.png" alt="Inpainting Project" style="width:50px; height:auto;"/>
-  </a>
-</p>
+#### [Automatic Artwork Classification](https://github.com/LucasRenaudineau/paintings_clustering)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
+![Computer Vision](https://img.shields.io/badge/Computer_Vision-Blue?style=flat-square)
+* Developing an unsupervised machine learning pipeline to cluster a 10GB dataset of 14,500+ paintings into historical art movements.
+* Engineering neural networks to jointly capture global image composition and localized painter styles directly from high-resolution data.
+* Implementing a dual-strategy approach, comparing direct deep feature extraction against handcrafted computer vision primitives.
+
+
+#### [White Blood Cell Classification - Kaggle Challenge](https://github.com/Mohamedyk10/IMA205-challenge)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
+![Kaggle](https://img.shields.io/badge/Kaggle-20BEFF?style=flat-square&logo=kaggle&logoColor=white)
+![Computer Vision](https://img.shields.io/badge/Computer_Vision-Blue?style=flat-square)
+* Developed a multi-class computer vision pipeline to categorize 13 distinct white blood cell types from microscopy images.
+* Mitigated severe class imbalance by engineering a robust dataset using strategic oversampling and advanced data augmentation.
+* Fine-tuned pre-trained deep learning architectures utilizing k-fold cross-validation, securing 3rd place out of 77 participants with a macro Fl-score of 0.7915.
+
+#### [Exemplar-based Inpainting](https://github.com/Mohamedyk10/inpainting)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=flat-square&logo=opencv&logoColor=white)
+![Computer Vision](https://img.shields.io/badge/Computer_Vision-Blue?style=flat-square)
+* Implemented the "Object Removal by Exemplar-Based Inpainting" algorithm (Criminisi, Pérez & Toyama) to reconstruct missing image regions via a purely algorithmic approach (without neural networks).
+* Achieved satisfactory reconstruction results; currently focusing on the optimization of the data term computation to improve overall performance.
+
+#### Playing Atari with Deep Reinforcement Learning
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
+![Reinforcement Learning](https://img.shields.io/badge/Deep_RL-DQN-purple?style=flat-square)
+* Trained a Deep Reinforcement Learning agent to master a strategy game using the DQN algorithm.
+* Designed the data extraction pipeline and reward function to accurately compute and optimize Q-values.
+* Simulated a robust training environment by programming custom heuristic bots to play against the AI.
 
 ### 🏆 Hackathons & Competitions
 
